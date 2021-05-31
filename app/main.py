@@ -22,35 +22,7 @@ def response():
 
     path_to_stl = "model1.stl"
     out_path = "model1.glb"
-    if len(sys.argv) > 3:
-      is_binary = True
-    else:
-      is_binary = False
-
-    if out_path.lower().endswith(".glb"):
-      print("Use binary mode since output file has glb extension")
-      is_binary = True
-    else:
-      if is_binary:
-        print("output file should have glb extension but not %s", out_path)
-
-    if not os.path.exists(path_to_stl):
-      print("stl file does not exists %s" % path_to_stl)
-
-    if not is_binary:
-      if not os.path.isdir(out_path):
-        os.mkdir(out_path)
-
     
-    # firebasedeneme start
-    # firebasedeneme start
-    
-    
-
-
-    # firebasedeneme finish
-
-    # firebasedeneme finish
 
 
 
