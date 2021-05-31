@@ -32,7 +32,7 @@ def response():
       "storageBucket": "dismo-45c00.appspot.com",
       "serviceAccount": "serviceAcoountKey.json"
     }
-    
+    firebase_storage = pyrebase.initialize_app(config)
 
 
 
