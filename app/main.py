@@ -43,7 +43,21 @@ def response():
 
     stl_to_gltf(path_to_stl, out_path, is_binary)
     # firebasedeneme start
+    # firebasedeneme start
+    config = {
 
+      "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
+      "authDomain": "dismo-45c00.firebaseapp.com",
+      "projectId": "dismo-45c00",
+      "storageBucket": "dismo-45c00.appspot.com",
+      "serviceAccount": "serviceAcoountKey.json"
+      }
+    firebase_storage = pyrebase.initialize_app(config)
+    storege = firebase_storage.storage()
+    storege.child(modelPath).put("model1.stl")
+
+
+    # firebasedeneme finish
 
     # firebasedeneme finish
 
