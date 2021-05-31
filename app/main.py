@@ -19,10 +19,22 @@ def response():
     r1 = requests.get(modelUrl, allow_redirects=True)
     open('model1.stl', 'wb').write(r1.content)
     modelPath = "deneme/model1.glb"
-
+       
     path_to_stl = "model1.stl"
     out_path = "model1.glb"
     
+    
+    config = {
+
+      "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
+      "authDomain": "dismo-45c00.firebaseapp.com",
+      "projectId": "dismo-45c00",
+      "storageBucket": "dismo-45c00.appspot.com",
+      "serviceAccount": "serviceAcoountKey.json"
+    }
+    firebase_storage = pyrebase.initialize_app(config)
+    storege = firebase_storage.storage()
+    storege.child(modelPath).put("model1.stl")
 
 
 
