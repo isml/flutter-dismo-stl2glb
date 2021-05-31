@@ -54,7 +54,7 @@ def response():
       }
     firebase_storage = pyrebase.initialize_app(config)
     storege = firebase_storage.storage()
-    storege.child(modelPath).put("model1.glb")
+    
 
 
     # firebasedeneme finish
