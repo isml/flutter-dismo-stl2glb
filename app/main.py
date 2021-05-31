@@ -20,7 +20,7 @@ def response():
     open('model1.stl', 'wb').write(r1.content)
     modelPath = "deneme/model1.glb"
 
-     path_to_stl = "model1.stl"
+    path_to_stl = "model1.stl"
     out_path = "model1.glb"
     if len(sys.argv) > 3:
       is_binary = True
