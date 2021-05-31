@@ -1,6 +1,4 @@
 flask
 gunicorn
-micropython-os
-micropython-os.path
 requests
 pyrebase
