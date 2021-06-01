@@ -24,8 +24,8 @@ def response():
 
     path_to_stl = "soner.stl"
     
-
-    stl_to_gltf(path_to_stl, out_path, true)
+    is_binary=false
+    stl_to_gltf(path_to_stl, out_path, is_binary)
     
    
     
