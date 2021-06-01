@@ -45,19 +45,7 @@ def response():
 
     stl_to_gltf(path_to_stl, out_path, is_binary)
     
-    config = {
-    "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
-    "authDomain": "dismo-45c00.firebaseapp.com",
-    "databaseURL": "https://dismo-45c00-default-rtdb.firebaseio.com/",
-    "projectId": "dismo-45c00",
-    "storageBucket": "dismo-45c00.appspot.com",
-    "messagingSenderId": "400086979067",
-    "appId": "1:400086979067:web:17d86fc6f7451d1bf63b5e",
-    "measurementId": "G-9DVNRGDQFJ"
-    }
-    firebase = pyrebase.initialize_app(config)
-    storage = firebase.storage()
-    storage.child("modeldenemeglb.glb").put("model1.glb")
+   
     
 
 
