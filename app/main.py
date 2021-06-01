@@ -43,7 +43,7 @@ def response():
         if not os.path.isdir(out_path):
             os.mkdir(out_path)
 
-    stl_to_gltf(path_to_stl, out_path, is_binary)
+    #stl_to_gltf(path_to_stl, out_path, is_binary)
     
    
     
