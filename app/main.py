@@ -20,7 +20,7 @@ def response():
     open('model1.stl', 'wb').write(r1.content)
     modelPath = "deneme/model1.glb"
     
-    import sys
+    
 
     path_to_stl = "model.stl"
     out_path = "model1.glb"
