@@ -22,7 +22,7 @@ def response():
     
     
 
-    path_to_stl = "model1.stl"
+    path_to_stl = "soner.stl"
     out_path = "model1.glb"
         if len(sys.argv) > 3:
         is_binary = True
