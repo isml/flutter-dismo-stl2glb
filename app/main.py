@@ -25,288 +25,288 @@ def response():
     
     
     if __name__ == '__main__':
-    import sys
+        import sys
 
 
 
-    path_to_stl = "model1.stl"
-    out_path = "model1.glb"
-    if len(sys.argv) > 3:
-        is_binary = True
-    else:
-        is_binary = False
+        path_to_stl = "model1.stl"
+        out_path = "model1.glb"
+        if len(sys.argv) > 3:
+            is_binary = True
+        else:
+            is_binary = False
 
-    if out_path.lower().endswith(".glb"):
-        print("Use binary mode since output file has glb extension")
-        is_binary = True
-    else:
-        if is_binary:
-            print("output file should have glb extension but not %s", out_path)
+        if out_path.lower().endswith(".glb"):
+            print("Use binary mode since output file has glb extension")
+            is_binary = True
+        else:
+            if is_binary:
+                print("output file should have glb extension but not %s", out_path)
 
-    if not os.path.exists(path_to_stl):
-        print("stl file does not exists %s" % path_to_stl)
+        if not os.path.exists(path_to_stl):
+            print("stl file does not exists %s" % path_to_stl)
 
-    if not is_binary:
-        if not os.path.isdir(out_path):
-            os.mkdir(out_path)
+        if not is_binary:
+            if not os.path.isdir(out_path):
+                os.mkdir(out_path)
 
-    print(is_binary)
-    gltf2 = '''
-    {
-      "scenes" : [
+        print(is_binary)
+        gltf2 = '''
         {
-          "nodes" : [ 0 ]
-        }
-      ],
+          "scenes" : [
+            {
+              "nodes" : [ 0 ]
+            }
+          ],
 
-      "nodes" : [
-        {
-          "mesh" : 0
-        }
-      ],
+          "nodes" : [
+            {
+              "mesh" : 0
+            }
+          ],
 
-      "meshes" : [
-        {
-          "primitives" : [ {
-            "attributes" : {
-              "POSITION" : 1
+          "meshes" : [
+            {
+              "primitives" : [ {
+                "attributes" : {
+                  "POSITION" : 1
+                },
+                "indices" : 0
+              } ]
+            }
+          ],
+
+          "buffers" : [
+            {
+              %s
+              "byteLength" : %d
+            }
+          ],
+          "bufferViews" : [
+            {
+              "buffer" : 0,
+              "byteOffset" : 0,
+              "byteLength" : %d,
+              "target" : 34963
             },
-            "indices" : 0
-          } ]
+            {
+              "buffer" : 0,
+              "byteOffset" : %d,
+              "byteLength" : %d,
+              "target" : 34962
+            }
+          ],
+          "accessors" : [
+            {
+              "bufferView" : 0,
+              "byteOffset" : 0,
+              "componentType" : 5125,
+              "count" : %d,
+              "type" : "SCALAR",
+              "max" : [ %d ],
+              "min" : [ 0 ]
+            },
+            {
+              "bufferView" : 1,
+              "byteOffset" : 0,
+              "componentType" : 5126,
+              "count" : %d,
+              "type" : "VEC3",
+              "min" : [%f, %f, %f],
+              "max" : [%f, %f, %f]
+            }
+          ],
+
+          "asset" : {
+            "version" : "2.0"
+          }
         }
-      ],
+        '''
 
-      "buffers" : [
-        {
-          %s
-          "byteLength" : %d
-        }
-      ],
-      "bufferViews" : [
-        {
-          "buffer" : 0,
-          "byteOffset" : 0,
-          "byteLength" : %d,
-          "target" : 34963
-        },
-        {
-          "buffer" : 0,
-          "byteOffset" : %d,
-          "byteLength" : %d,
-          "target" : 34962
-        }
-      ],
-      "accessors" : [
-        {
-          "bufferView" : 0,
-          "byteOffset" : 0,
-          "componentType" : 5125,
-          "count" : %d,
-          "type" : "SCALAR",
-          "max" : [ %d ],
-          "min" : [ 0 ]
-        },
-        {
-          "bufferView" : 1,
-          "byteOffset" : 0,
-          "componentType" : 5126,
-          "count" : %d,
-          "type" : "VEC3",
-          "min" : [%f, %f, %f],
-          "max" : [%f, %f, %f]
-        }
-      ],
+        header_bytes = 80
+        unsigned_long_int_bytes = 4
+        float_bytes = 4
+        vec3_bytes = 4 * 3
+        spacer_bytes = 2
+        num_vertices_in_face = 3
 
-      "asset" : {
-        "version" : "2.0"
-      }
-    }
-    '''
+        vertices = {}
+        indices = []
 
-    header_bytes = 80
-    unsigned_long_int_bytes = 4
-    float_bytes = 4
-    vec3_bytes = 4 * 3
-    spacer_bytes = 2
-    num_vertices_in_face = 3
+        if not is_binary:
+            out_bin = os.path.join(out_path, "out.bin")
+            out_gltf = os.path.join(out_path, "out.gltf")
+        else:
+            out_bin = out_path
 
-    vertices = {}
-    indices = []
+        unpack_face = struct.Struct("<12fH").unpack
+        face_bytes = float_bytes * 12 + 2
 
-    if not is_binary:
-        out_bin = os.path.join(out_path, "out.bin")
-        out_gltf = os.path.join(out_path, "out.gltf")
-    else:
-        out_bin = out_path
+        with open(path_to_stl, "rb") as f:
+            f.seek(header_bytes)  # skip 80 bytes headers
 
-    unpack_face = struct.Struct("<12fH").unpack
-    face_bytes = float_bytes * 12 + 2
+            num_faces_bytes = f.read(unsigned_long_int_bytes)
+            number_faces = struct.unpack("<I", num_faces_bytes)[0]
 
-    with open(path_to_stl, "rb") as f:
-        f.seek(header_bytes)  # skip 80 bytes headers
+            # the vec3_bytes is for normal
+            stl_assume_bytes = header_bytes + unsigned_long_int_bytes + number_faces * (
+                        vec3_bytes * 3 + spacer_bytes + vec3_bytes)
 
-        num_faces_bytes = f.read(unsigned_long_int_bytes)
-        number_faces = struct.unpack("<I", num_faces_bytes)[0]
+            minx, maxx = [9999999, -9999999]
+            miny, maxy = [9999999, -9999999]
+            minz, maxz = [9999999, -9999999]
 
-        # the vec3_bytes is for normal
-        stl_assume_bytes = header_bytes + unsigned_long_int_bytes + number_faces * (
-                    vec3_bytes * 3 + spacer_bytes + vec3_bytes)
+            vertices_length_counter = 0
 
-        minx, maxx = [9999999, -9999999]
-        miny, maxy = [9999999, -9999999]
-        minz, maxz = [9999999, -9999999]
+            data = struct.unpack("<" + "12fH" * number_faces, f.read())
+            len_data = len(data)
 
-        vertices_length_counter = 0
+            for i in range(0, len_data, 13):
+                for j in range(3, 12, 3):
+                    x, y, z = data[i + j:i + j + 3]
 
-        data = struct.unpack("<" + "12fH" * number_faces, f.read())
-        len_data = len(data)
+                    x = int(x * 100000) / 100000
+                    y = int(y * 100000) / 100000
+                    z = int(z * 100000) / 100000
 
-        for i in range(0, len_data, 13):
-            for j in range(3, 12, 3):
-                x, y, z = data[i + j:i + j + 3]
+                    tuple_xyz = (x, y, z);
 
-                x = int(x * 100000) / 100000
-                y = int(y * 100000) / 100000
-                z = int(z * 100000) / 100000
+                    try:
+                        indices.append(vertices[tuple_xyz])
+                    except KeyError:
+                        vertices[tuple_xyz] = vertices_length_counter
+                        vertices_length_counter += 1
+                        indices.append(vertices[tuple_xyz])
 
-                tuple_xyz = (x, y, z);
+                    if x < minx: minx = x
+                    if x > maxx: maxx = x
+                    if y < miny: miny = y
+                    if y > maxy: maxy = y
+                    if z < minz: minz = z
+                    if z > maxz: maxz = z
 
-                try:
-                    indices.append(vertices[tuple_xyz])
-                except KeyError:
-                    vertices[tuple_xyz] = vertices_length_counter
-                    vertices_length_counter += 1
-                    indices.append(vertices[tuple_xyz])
+                # f.seek(spacer_bytes, 1) # skip the spacer
 
-                if x < minx: minx = x
-                if x > maxx: maxx = x
-                if y < miny: miny = y
-                if y > maxy: maxy = y
-                if z < minz: minz = z
-                if z > maxz: maxz = z
+        number_vertices = len(vertices)
+        vertices_bytelength = number_vertices * vec3_bytes  # each vec3 has 3 floats, each float is 4 bytes
+        unpadded_indices_bytelength = number_vertices * unsigned_long_int_bytes
 
-            # f.seek(spacer_bytes, 1) # skip the spacer
+        out_number_vertices = len(vertices)
+        out_number_indices = len(indices)
 
-    number_vertices = len(vertices)
-    vertices_bytelength = number_vertices * vec3_bytes  # each vec3 has 3 floats, each float is 4 bytes
-    unpadded_indices_bytelength = number_vertices * unsigned_long_int_bytes
+        unpadded_indices_bytelength = out_number_indices * unsigned_long_int_bytes
+        indices_bytelength = (unpadded_indices_bytelength + 3) & ~3
 
-    out_number_vertices = len(vertices)
-    out_number_indices = len(indices)
+        out_bin_bytelength = vertices_bytelength + indices_bytelength
 
-    unpadded_indices_bytelength = out_number_indices * unsigned_long_int_bytes
-    indices_bytelength = (unpadded_indices_bytelength + 3) & ~3
+        if is_binary:
+            out_bin_uir = ""
+        else:
+            out_bin_uir = '"uri": "out.bin",'
 
-    out_bin_bytelength = vertices_bytelength + indices_bytelength
+        gltf2 = gltf2 % (out_bin_uir,
+                         # buffer
+                         out_bin_bytelength,
 
-    if is_binary:
-        out_bin_uir = ""
-    else:
-        out_bin_uir = '"uri": "out.bin",'
+                         # bufferViews[0]
+                         indices_bytelength,
 
-    gltf2 = gltf2 % (out_bin_uir,
-                     # buffer
-                     out_bin_bytelength,
+                         # bufferViews[1]
+                         indices_bytelength,
+                         vertices_bytelength,
 
-                     # bufferViews[0]
-                     indices_bytelength,
+                         # accessors[0]
+                         out_number_indices,
+                         out_number_vertices - 1,
 
-                     # bufferViews[1]
-                     indices_bytelength,
-                     vertices_bytelength,
+                         # accessors[1]
+                         out_number_vertices,
+                         minx, miny, minz,
+                         maxx, maxy, maxz
+                         )
 
-                     # accessors[0]
-                     out_number_indices,
-                     out_number_vertices - 1,
+        glb_out = bytearray()
+        if is_binary:
+            gltf2 = gltf2.replace(" ", "")
+            gltf2 = gltf2.replace("\n", "")
 
-                     # accessors[1]
-                     out_number_vertices,
-                     minx, miny, minz,
-                     maxx, maxy, maxz
-                     )
+            scene = bytearray(gltf2.encode())
 
-    glb_out = bytearray()
-    if is_binary:
-        gltf2 = gltf2.replace(" ", "")
-        gltf2 = gltf2.replace("\n", "")
+            scene_len = len(scene)
+            padded_scene_len = (scene_len + 3) & ~3
+            body_offset = padded_scene_len + 12 + 8
 
-        scene = bytearray(gltf2.encode())
+            file_len = body_offset + out_bin_bytelength + 8
 
-        scene_len = len(scene)
-        padded_scene_len = (scene_len + 3) & ~3
-        body_offset = padded_scene_len + 12 + 8
+            # 12-byte header
+            glb_out.extend(struct.pack('<I', 0x46546C67))  # magic number for glTF
+            glb_out.extend(struct.pack('<I', 2))
+            glb_out.extend(struct.pack('<I', file_len))
 
-        file_len = body_offset + out_bin_bytelength + 8
+            # chunk 0
+            glb_out.extend(struct.pack('<I', padded_scene_len))
+            glb_out.extend(struct.pack('<I', 0x4E4F534A))  # magic number for JSON
+            glb_out.extend(scene)
 
-        # 12-byte header
-        glb_out.extend(struct.pack('<I', 0x46546C67))  # magic number for glTF
-        glb_out.extend(struct.pack('<I', 2))
-        glb_out.extend(struct.pack('<I', file_len))
+            while len(glb_out) < body_offset:
+                glb_out.extend(b' ')
 
-        # chunk 0
-        glb_out.extend(struct.pack('<I', padded_scene_len))
-        glb_out.extend(struct.pack('<I', 0x4E4F534A))  # magic number for JSON
-        glb_out.extend(scene)
+            # chunk 1
+            glb_out.extend(struct.pack('<I', out_bin_bytelength))
+            glb_out.extend(struct.pack('<I', 0x004E4942))  # magin number for BIN
 
-        while len(glb_out) < body_offset:
+        # print('<%dI' % len(indices))
+        # print(struct.pack('<%dI' % len(indices), *indices))
+        glb_out.extend(struct.pack('<%dI' % len(indices), *indices))
+
+        for i in range(indices_bytelength - unpadded_indices_bytelength):
             glb_out.extend(b' ')
 
-        # chunk 1
-        glb_out.extend(struct.pack('<I', out_bin_bytelength))
-        glb_out.extend(struct.pack('<I', 0x004E4942))  # magin number for BIN
+        vertices = dict((v, k) for k, v in vertices.items())
 
-    # print('<%dI' % len(indices))
-    # print(struct.pack('<%dI' % len(indices), *indices))
-    glb_out.extend(struct.pack('<%dI' % len(indices), *indices))
+        # glb_out.extend(struct.pack('f',
+        # print([each_v for vertices[v_counter] for v_counter in range(number_vertices)]) # magin number for BIN
+        vertices = [vertices[i] for i in range(number_vertices)]
+        flatten = lambda l: [item for sublist in l for item in sublist]
 
-    for i in range(indices_bytelength - unpadded_indices_bytelength):
-        glb_out.extend(b' ')
+        # for v_counter in :
+        # v_3f = vertices[v_counter]
+        # all_floats_in_vertices.append(v_3f[0])
+        # all_floats_in_vertices.append(v_3f[1])
+        # all_floats_in_vertices.append(v_3f[2])
 
-    vertices = dict((v, k) for k, v in vertices.items())
+        # for v_counter in range(number_vertices):
+        glb_out.extend(struct.pack('%df' % number_vertices * 3, *flatten(vertices)))  # magin number for BIN
 
-    # glb_out.extend(struct.pack('f',
-    # print([each_v for vertices[v_counter] for v_counter in range(number_vertices)]) # magin number for BIN
-    vertices = [vertices[i] for i in range(number_vertices)]
-    flatten = lambda l: [item for sublist in l for item in sublist]
+        # for v_counter in range(number_vertices):
+        # glb_out.extend(struct.pack('3f', *vertices[v_counter])) # magin number for BIN
 
-    # for v_counter in :
-    # v_3f = vertices[v_counter]
-    # all_floats_in_vertices.append(v_3f[0])
-    # all_floats_in_vertices.append(v_3f[1])
-    # all_floats_in_vertices.append(v_3f[2])
+        # for (v_x, v_y, v_z), _ in sorted(vertices.items(), key=lambda x: x[1]):
+        # glb_out.extend(struct.pack('3f', v_x, v_y, v_z)) # magin number for BIN
+        # # glb_out.extend(struct.pack('f', v_y)) # magin number for BIN
+        # # glb_out.extend(struct.pack('f', v_z)) # magin number for BIN
 
-    # for v_counter in range(number_vertices):
-    glb_out.extend(struct.pack('%df' % number_vertices * 3, *flatten(vertices)))  # magin number for BIN
+        with open(out_bin, "wb") as out:
+            out.write(glb_out)
 
-    # for v_counter in range(number_vertices):
-    # glb_out.extend(struct.pack('3f', *vertices[v_counter])) # magin number for BIN
+        if not is_binary:
+            with open(out_gltf, "w") as out:
+                out.write(gltf2)
 
-    # for (v_x, v_y, v_z), _ in sorted(vertices.items(), key=lambda x: x[1]):
-    # glb_out.extend(struct.pack('3f', v_x, v_y, v_z)) # magin number for BIN
-    # # glb_out.extend(struct.pack('f', v_y)) # magin number for BIN
-    # # glb_out.extend(struct.pack('f', v_z)) # magin number for BIN
-
-    with open(out_bin, "wb") as out:
-        out.write(glb_out)
-
-    if not is_binary:
-        with open(out_gltf, "w") as out:
-            out.write(gltf2)
-
-    print("Done! Exported to %s" % out_path)
-    config = {
-        "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
-        "authDomain": "dismo-45c00.firebaseapp.com",
-        "databaseURL": "https://dismo-45c00-default-rtdb.firebaseio.com/",
-        "projectId": "dismo-45c00",
-        "storageBucket": "dismo-45c00.appspot.com",
-        "messagingSenderId": "400086979067",
-        "appId": "1:400086979067:web:17d86fc6f7451d1bf63b5e",
-        "measurementId": "G-9DVNRGDQFJ"
-    }
-    firebase = pyrebase.initialize_app(config)
-    storage = firebase.storage()
-    storage.child("v1.stl").put("model1.glb")
+        print("Done! Exported to %s" % out_path)
+        config = {
+            "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
+            "authDomain": "dismo-45c00.firebaseapp.com",
+            "databaseURL": "https://dismo-45c00-default-rtdb.firebaseio.com/",
+            "projectId": "dismo-45c00",
+            "storageBucket": "dismo-45c00.appspot.com",
+            "messagingSenderId": "400086979067",
+            "appId": "1:400086979067:web:17d86fc6f7451d1bf63b5e",
+            "measurementId": "G-9DVNRGDQFJ"
+        }
+        firebase = pyrebase.initialize_app(config)
+        storage = firebase.storage()
+        storage.child("v1.stl").put("model1.glb")
    
     
 
