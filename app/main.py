@@ -292,10 +292,10 @@ def response():
 
 
 
-
+    response=str(url)
     resPuan = "5"
 
-    return jsonify({"response": url})
+    return jsonify({"response": response})
 
 
 
