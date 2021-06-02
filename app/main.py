@@ -118,7 +118,8 @@ def response():
     unpack_face = struct.Struct("<12fH").unpack
     face_bytes = float_bytes * 12 + 2
     #sıkıntı burada başlıyor
-    f = open("model1.stl")
+    with open("model1.stl", "rb") as f:
+        print("deneme")
         
     
     
