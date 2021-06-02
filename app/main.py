@@ -208,10 +208,70 @@ def response():
 
     unpack_face = struct.Struct("<12fH").unpack
     face_bytes = float_bytes * 12 + 2
+    
+     with open(path_to_stl, "rb") as f:
+        f.seek(header_bytes)  # skip 80 bytes headers
 
-   
-    print("Done! Exported to %s" % out_path)
+        num_faces_bytes = f.read(unsigned_long_int_bytes)
+        number_faces = struct.unpack("<I", num_faces_bytes)[0]
 
+        # the vec3_bytes is for normal
+        stl_assume_bytes = header_bytes + unsigned_long_int_bytes + number_faces * (
+                    vec3_bytes * 3 + spacer_bytes + vec3_bytes)
+
+        minx, maxx = [9999999, -9999999]
+        miny, maxy = [9999999, -9999999]
+        minz, maxz = [9999999, -9999999]
+
+        vertices_length_counter = 0
+
+        data = struct.unpack("<" + "12fH" * number_faces, f.read())
+        len_data = len(data)
+
+        for i in range(0, len_data, 13):
+            for j in range(3, 12, 3):
+                x, y, z = data[i + j:i + j + 3]
+
+                x = int(x * 100000) / 100000
+                y = int(y * 100000) / 100000
+                z = int(z * 100000) / 100000
+
+                tuple_xyz = (x, y, z);
+
+                try:
+                    indices.append(vertices[tuple_xyz])
+                except KeyError:
+                    vertices[tuple_xyz] = vertices_length_counter
+                    vertices_length_counter += 1
+                    indices.append(vertices[tuple_xyz])
+
+                if x < minx: minx = x
+                if x > maxx: maxx = x
+                if y < miny: miny = y
+                if y > maxy: maxy = y
+                if z < minz: minz = z
+                if z > maxz: maxz = z
+
+            # f.seek(spacer_bytes, 1) # skip the spacer
+
+    number_vertices = len(vertices)
+    vertices_bytelength = number_vertices * vec3_bytes  # each vec3 has 3 floats, each float is 4 bytes
+    unpadded_indices_bytelength = number_vertices * unsigned_long_int_bytes
+
+    out_number_vertices = len(vertices)
+    out_number_indices = len(indices)
+
+    unpadded_indices_bytelength = out_number_indices * unsigned_long_int_bytes
+    indices_bytelength = (unpadded_indices_bytelength + 3) & ~3
+
+    out_bin_bytelength = vertices_bytelength + indices_bytelength
+
+    if is_binary:
+        out_bin_uir = ""
+    else:
+        out_bin_uir = '"uri": "out.bin",'
+
+    
 
     
 
