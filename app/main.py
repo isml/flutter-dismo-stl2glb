@@ -286,7 +286,7 @@ def response():
     }
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
-    storage.child("model1.glb").put("model1.stl")
+    storage.child("soner.glb").put("soner.glb")
    
     
 
