@@ -118,10 +118,9 @@ def response():
     unpack_face = struct.Struct("<12fH").unpack
     face_bytes = float_bytes * 12 + 2
     #sıkıntı burada başlıyor
-    with open(path_to_stl) as f:
-        print("deneme")
-    except:                    # <- with doesn't have an except clause.
-        print('oops')
+    f = open(path_to_stl) 
+        
+    
     
 
     config = {
