@@ -228,48 +228,99 @@ def response():
         data = struct.unpack("<" + "12fH" * number_faces, f.read())
         len_data = len(data)
 
-        for i in range(0, len_data, 13):
-            for j in range(3, 12, 3):
-                x, y, z = data[i + j:i + j + 3]
+        
+    #breakkkkkk
+    gltf2 = gltf2 % (out_bin_uir,
+                     # buffer
+                     out_bin_bytelength,
 
-                x = int(x * 100000) / 100000
-                y = int(y * 100000) / 100000
-                z = int(z * 100000) / 100000
+                     # bufferViews[0]
+                     indices_bytelength,
 
-                tuple_xyz = (x, y, z);
+                     # bufferViews[1]
+                     indices_bytelength,
+                     vertices_bytelength,
 
-                try:
-                    indices.append(vertices[tuple_xyz])
-                except KeyError:
-                    vertices[tuple_xyz] = vertices_length_counter
-                    vertices_length_counter += 1
-                    indices.append(vertices[tuple_xyz])
+                     # accessors[0]
+                     out_number_indices,
+                     out_number_vertices - 1,
 
-                if x < minx: minx = x
-                if x > maxx: maxx = x
-                if y < miny: miny = y
-                if y > maxy: maxy = y
-                if z < minz: minz = z
-                if z > maxz: maxz = z
+                     # accessors[1]
+                     out_number_vertices,
+                     minx, miny, minz,
+                     maxx, maxy, maxz
+                     )
 
-            # f.seek(spacer_bytes, 1) # skip the spacer
-
-    number_vertices = len(vertices)
-    vertices_bytelength = number_vertices * vec3_bytes  # each vec3 has 3 floats, each float is 4 bytes
-    unpadded_indices_bytelength = number_vertices * unsigned_long_int_bytes
-
-    out_number_vertices = len(vertices)
-    out_number_indices = len(indices)
-
-    unpadded_indices_bytelength = out_number_indices * unsigned_long_int_bytes
-    indices_bytelength = (unpadded_indices_bytelength + 3) & ~3
-
-    out_bin_bytelength = vertices_bytelength + indices_bytelength
-
+    glb_out = bytearray()
     if is_binary:
-        out_bin_uir = ""
-    else:
-        out_bin_uir = '"uri": "out.bin",'
+        gltf2 = gltf2.replace(" ", "")
+        gltf2 = gltf2.replace("\n", "")
+
+        scene = bytearray(gltf2.encode())
+
+        scene_len = len(scene)
+        padded_scene_len = (scene_len + 3) & ~3
+        body_offset = padded_scene_len + 12 + 8
+
+        file_len = body_offset + out_bin_bytelength + 8
+
+        # 12-byte header
+        glb_out.extend(struct.pack('<I', 0x46546C67))  # magic number for glTF
+        glb_out.extend(struct.pack('<I', 2))
+        glb_out.extend(struct.pack('<I', file_len))
+
+        # chunk 0
+        glb_out.extend(struct.pack('<I', padded_scene_len))
+        glb_out.extend(struct.pack('<I', 0x4E4F534A))  # magic number for JSON
+        glb_out.extend(scene)
+
+        while len(glb_out) < body_offset:
+            glb_out.extend(b' ')
+
+        # chunk 1
+        glb_out.extend(struct.pack('<I', out_bin_bytelength))
+        glb_out.extend(struct.pack('<I', 0x004E4942))  # magin number for BIN
+
+    # print('<%dI' % len(indices))
+    # print(struct.pack('<%dI' % len(indices), *indices))
+    glb_out.extend(struct.pack('<%dI' % len(indices), *indices))
+
+    for i in range(indices_bytelength - unpadded_indices_bytelength):
+        glb_out.extend(b' ')
+
+    vertices = dict((v, k) for k, v in vertices.items())
+
+    # glb_out.extend(struct.pack('f',
+    # print([each_v for vertices[v_counter] for v_counter in range(number_vertices)]) # magin number for BIN
+    vertices = [vertices[i] for i in range(number_vertices)]
+    flatten = lambda l: [item for sublist in l for item in sublist]
+
+    # for v_counter in :
+    # v_3f = vertices[v_counter]
+    # all_floats_in_vertices.append(v_3f[0])
+    # all_floats_in_vertices.append(v_3f[1])
+    # all_floats_in_vertices.append(v_3f[2])
+
+    # for v_counter in range(number_vertices):
+    glb_out.extend(struct.pack('%df' % number_vertices * 3, *flatten(vertices)))  # magin number for BIN
+
+    # for v_counter in range(number_vertices):
+    # glb_out.extend(struct.pack('3f', *vertices[v_counter])) # magin number for BIN
+
+    # for (v_x, v_y, v_z), _ in sorted(vertices.items(), key=lambda x: x[1]):
+    # glb_out.extend(struct.pack('3f', v_x, v_y, v_z)) # magin number for BIN
+    # # glb_out.extend(struct.pack('f', v_y)) # magin number for BIN
+    # # glb_out.extend(struct.pack('f', v_z)) # magin number for BIN
+
+    with open(out_bin, "wb") as out:
+        out.write(glb_out)
+
+    if not is_binary:
+        with open(out_gltf, "w") as out:
+            out.write(gltf2)
+
+   
+    print("Done! Exported to %s" % out_path)
 
     
 
