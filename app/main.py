@@ -286,8 +286,8 @@ def response():
     }
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
-    storage.child(modelPath).put("soner.glb")
-   
+    storage.child(modelPath).put("odev.glb")
+    url = url.storage.child(modelPath).get_url("odev.glb")
     
 
 
@@ -295,7 +295,7 @@ def response():
 
     resPuan = "5"
 
-    return jsonify({"response": modelUrls[1]})
+    return jsonify({"response": url})
 
 
 
