@@ -113,6 +113,105 @@ def response():
         out_gltf = os.path.join(out_path, "out.gltf")
     else:
         out_bin = out_path
+        path_to_stl = "soner.stl"
+    out_path = "soner.glb"
+
+    is_binary =True
+
+    gltf2 = '''
+    {
+      "scenes" : [
+        {
+          "nodes" : [ 0 ]
+        }
+      ],
+
+      "nodes" : [
+        {
+          "mesh" : 0
+        }
+      ],
+
+      "meshes" : [
+        {
+          "primitives" : [ {
+            "attributes" : {
+              "POSITION" : 1
+            },
+            "indices" : 0
+          } ]
+        }
+      ],
+
+      "buffers" : [
+        {
+          %s
+          "byteLength" : %d
+        }
+      ],
+      "bufferViews" : [
+        {
+          "buffer" : 0,
+          "byteOffset" : 0,
+          "byteLength" : %d,
+          "target" : 34963
+        },
+        {
+          "buffer" : 0,
+          "byteOffset" : %d,
+          "byteLength" : %d,
+          "target" : 34962
+        }
+      ],
+      "accessors" : [
+        {
+          "bufferView" : 0,
+          "byteOffset" : 0,
+          "componentType" : 5125,
+          "count" : %d,
+          "type" : "SCALAR",
+          "max" : [ %d ],
+          "min" : [ 0 ]
+        },
+        {
+          "bufferView" : 1,
+          "byteOffset" : 0,
+          "componentType" : 5126,
+          "count" : %d,
+          "type" : "VEC3",
+          "min" : [%f, %f, %f],
+          "max" : [%f, %f, %f]
+        }
+      ],
+
+      "asset" : {
+        "version" : "2.0"
+      }
+    }
+    '''
+
+    header_bytes = 80
+    unsigned_long_int_bytes = 4
+    float_bytes = 4
+    vec3_bytes = 4 * 3
+    spacer_bytes = 2
+    num_vertices_in_face = 3
+
+    vertices = {}
+    indices = []
+
+    if not is_binary:
+        out_bin = os.path.join(out_path, "out.bin")
+        out_gltf = os.path.join(out_path, "out.gltf")
+    else:
+        out_bin = out_path
+
+    unpack_face = struct.Struct("<12fH").unpack
+    face_bytes = float_bytes * 12 + 2
+
+   
+    print("Done! Exported to %s" % out_path)
+
 
     
 
