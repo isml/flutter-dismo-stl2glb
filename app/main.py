@@ -287,7 +287,7 @@ def response():
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
     storage.child(modelPath).put("odev.glb")
-    url = url.storage.child(modelPath).get_url("odev.glb")
+    url = url.storage.child(modelPath).get_url()
     
 
 
