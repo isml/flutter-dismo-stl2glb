@@ -16,7 +16,7 @@ def response():
 
     query = dict(request.form)['query']
     modelUrls = query.split("+linkdivider+")
-    modelUrl = "https://firebasestorage.googleapis.com/v0/b/dismo-45c00.appspot.com/o/ii%40gmail.com%2Ffdhfh%2Fodev.stl?alt=media&token=07f86069-2222-4186-920d-ce5d6b38e498"
+    modelUrl = modelUrls[0]
     r1 = requests.get(modelUrl, allow_redirects=True)
     open('model1.stl', 'wb').write(r1.content)
     modelPath = "deneme/model1.glb"
