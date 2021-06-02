@@ -287,15 +287,10 @@ def response():
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
     storage.child(modelPath).put("odev.glb")
-    url = url.storage.child(modelPath).get_url()
+   
     
 
-
-
-    response=str(url)
-    resPuan = "5"
-
-    return jsonify({"response": response})
+    return jsonify({"response": "1"})
 
 
 
