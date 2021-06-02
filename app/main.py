@@ -21,12 +21,10 @@ def response():
     modelPath = "deneme/model1.glb"
  
 
-    binary_stl_path = "soner.stl"
+    binary_stl_path = "model1.stl"
     out_path = "model1.glb"
-    if len(sys.argv) > 3:
-        is_binary = True
-    else:
-        is_binary = False
+    
+    is_binary = False
 
     if out_path.lower().endswith(".glb"):
         print("Use binary mode since output file has glb extension")
@@ -35,8 +33,7 @@ def response():
         if is_binary:
             print("output file should have glb extension but not %s", out_path)
 
-    if not os.path.exists(binary_stl_path):
-        print("stl file does not exists %s" % binary_stl_path)
+    
 
     if not is_binary:
         if not os.path.isdir(out_path):
