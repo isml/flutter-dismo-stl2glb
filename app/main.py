@@ -295,7 +295,7 @@ def response():
 
     resPuan = "5"
 
-    return jsonify({"response": "1"})
+    return jsonify({"response": modelUrls[0]})
 
 
 
