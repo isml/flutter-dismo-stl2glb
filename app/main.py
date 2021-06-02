@@ -19,7 +19,7 @@ def response():
     modelUrl = modelUrls[0]
     r1 = requests.get(modelUrl, allow_redirects=True)
     open('model1.stl', 'wb').write(r1.content)
-    modelPath = "deneme/model1.glb"
+    modelPath = modelUrls[1]
  
 
     path_to_stl = "model1.stl"
@@ -286,7 +286,7 @@ def response():
     }
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
-    storage.child("soner.glb").put("soner.glb")
+    storage.child(modelPath).put("soner.glb")
    
     
 
