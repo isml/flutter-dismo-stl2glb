@@ -21,95 +21,82 @@ def response():
     modelPath = "deneme/model1.glb"
  
 
-    binary_stl_path = "model1.stl"
-    out_path = "model1.glb"
-    
-    is_binary = False
+    path_to_stl = "soner.stl"
+    out_path = "soner.glb"
 
-    if out_path.lower().endswith(".glb"):
-        print("Use binary mode since output file has glb extension")
-        is_binary = True
-    else:
-        if is_binary:
-            print("output file should have glb extension but not %s", out_path)
+    is_binary =True
 
-    
-
-    if not is_binary:
-        if not os.path.isdir(out_path):
-            os.mkdir(out_path)
-    print(is_binary)
     gltf2 = '''
-                {
-                  "scenes" : [
-                    {
-                      "nodes" : [ 0 ]
-                    }
-                  ],
+    {
+      "scenes" : [
+        {
+          "nodes" : [ 0 ]
+        }
+      ],
 
-                  "nodes" : [
-                    {
-                      "mesh" : 0
-                    }
-                  ],
+      "nodes" : [
+        {
+          "mesh" : 0
+        }
+      ],
 
-                  "meshes" : [
-                    {
-                      "primitives" : [ {
-                        "attributes" : {
-                          "POSITION" : 1
-                        },
-                        "indices" : 0
-                      } ]
-                    }
-                  ],
+      "meshes" : [
+        {
+          "primitives" : [ {
+            "attributes" : {
+              "POSITION" : 1
+            },
+            "indices" : 0
+          } ]
+        }
+      ],
 
-                  "buffers" : [
-                    {
-                      %s
-                      "byteLength" : %d
-                    }
-                  ],
-                  "bufferViews" : [
-                    {
-                      "buffer" : 0,
-                      "byteOffset" : 0,
-                      "byteLength" : %d,
-                      "target" : 34963
-                    },
-                    {
-                      "buffer" : 0,
-                      "byteOffset" : %d,
-                      "byteLength" : %d,
-                      "target" : 34962
-                    }
-                  ],
-                  "accessors" : [
-                    {
-                      "bufferView" : 0,
-                      "byteOffset" : 0,
-                      "componentType" : 5125,
-                      "count" : %d,
-                      "type" : "SCALAR",
-                      "max" : [ %d ],
-                      "min" : [ 0 ]
-                    },
-                    {
-                   "bufferView" : 1,
-                  "byteOffset" : 0,
-                  "componentType" : 5126,
-                  "count" : %d,
-                  "type" : "VEC3",
-                  "min" : [%f, %f, %f],
-                  "max" : [%f, %f, %f]
-                }
-              ],
+      "buffers" : [
+        {
+          %s
+          "byteLength" : %d
+        }
+      ],
+      "bufferViews" : [
+        {
+          "buffer" : 0,
+          "byteOffset" : 0,
+          "byteLength" : %d,
+          "target" : 34963
+        },
+        {
+          "buffer" : 0,
+          "byteOffset" : %d,
+          "byteLength" : %d,
+          "target" : 34962
+        }
+      ],
+      "accessors" : [
+        {
+          "bufferView" : 0,
+          "byteOffset" : 0,
+          "componentType" : 5125,
+          "count" : %d,
+          "type" : "SCALAR",
+          "max" : [ %d ],
+          "min" : [ 0 ]
+        },
+        {
+          "bufferView" : 1,
+          "byteOffset" : 0,
+          "componentType" : 5126,
+          "count" : %d,
+          "type" : "VEC3",
+          "min" : [%f, %f, %f],
+          "max" : [%f, %f, %f]
+        }
+      ],
 
-              "asset" : {
-                "version" : "2.0"
-              }
-            }
-            '''
+      "asset" : {
+        "version" : "2.0"
+      }
+    }
+    '''
 
     header_bytes = 80
     unsigned_long_int_bytes = 4
@@ -138,7 +125,7 @@ def response():
 
         # the vec3_bytes is for normal
         stl_assume_bytes = header_bytes + unsigned_long_int_bytes + number_faces * (
-                vec3_bytes * 3 + spacer_bytes + vec3_bytes)
+                    vec3_bytes * 3 + spacer_bytes + vec3_bytes)
 
         minx, maxx = [9999999, -9999999]
         miny, maxy = [9999999, -9999999]
@@ -173,7 +160,7 @@ def response():
                 if z < minz: minz = z
                 if z > maxz: maxz = z
 
-                # f.seek(spacer_bytes, 1) # skip the spacer
+            # f.seek(spacer_bytes, 1) # skip the spacer
 
     number_vertices = len(vertices)
     vertices_bytelength = number_vertices * vec3_bytes  # each vec3 has 3 floats, each float is 4 bytes
@@ -236,12 +223,12 @@ def response():
         glb_out.extend(struct.pack('<I', 0x4E4F534A))  # magic number for JSON
         glb_out.extend(scene)
 
-    while len(glb_out) < body_offset:
-        glb_out.extend(b' ')
+        while len(glb_out) < body_offset:
+            glb_out.extend(b' ')
 
         # chunk 1
-    glb_out.extend(struct.pack('<I', out_bin_bytelength))
-    glb_out.extend(struct.pack('<I', 0x004E4942))  # magin number for BIN
+        glb_out.extend(struct.pack('<I', out_bin_bytelength))
+        glb_out.extend(struct.pack('<I', 0x004E4942))  # magin number for BIN
 
     # print('<%dI' % len(indices))
     # print(struct.pack('<%dI' % len(indices), *indices))
@@ -280,9 +267,9 @@ def response():
     if not is_binary:
         with open(out_gltf, "w") as out:
             out.write(gltf2)
-    
 
     print("Done! Exported to %s" % out_path)
+
     config = {
         "apiKey": "AIzaSyB1nw436MIG5oq53Bd7_xYanYwA1U7GnH0",
         "authDomain": "dismo-45c00.firebaseapp.com",
