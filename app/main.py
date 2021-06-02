@@ -23,7 +23,7 @@ def response():
  
 
     path_to_stl = "model1.stl"
-    out_path = "soner.glb"
+    out_path = "odev.glb"
 
     is_binary =True
 
