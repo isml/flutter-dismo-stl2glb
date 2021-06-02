@@ -16,14 +16,14 @@ def response():
 
     query = dict(request.form)['query']
     modelUrls = query.split("+linkdivider+")
-    modelUrl = "https://firebasestorage.googleapis.com/v0/b/dismo-45c00.appspot.com/o/soner.stl?alt=media&token=e97408ce-0253-46c3-b755-72024bb4a1d2"
+    modelUrl = modelUrl[0]
     r1 = requests.get(modelUrl, allow_redirects=True)
     open('model1.stl', 'wb').write(r1.content)
-    modelPath = "deneme/model1.glb"
+    modelPath = modelUrl[1]
  
 
     path_to_stl = "model1.stl"
-    out_path = "soner.glb"
+    out_path = "odev.glb"
 
     is_binary =True
 
@@ -286,7 +286,7 @@ def response():
     }
     firebase = pyrebase.initialize_app(config)
     storage = firebase.storage()
-    storage.child("soner.glb").put("soner.glb")
+    storage.child(modelPath).put(out_path)
    
     
 
