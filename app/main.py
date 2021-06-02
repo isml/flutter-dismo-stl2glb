@@ -120,6 +120,8 @@ def response():
     #sıkıntı burada başlıyor
     with open(path_to_stl, "rb") as f:
         print("deneme")
+    except:                    # <- with doesn't have an except clause.
+        print('oops')
     
 
     config = {
