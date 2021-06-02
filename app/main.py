@@ -16,10 +16,10 @@ def response():
 
     query = dict(request.form)['query']
     modelUrls = query.split("+linkdivider+")
-    modelUrl = modelUrl[0]
+    modelUrl = modelUrls[0]
     r1 = requests.get(modelUrl, allow_redirects=True)
     open('model1.stl', 'wb').write(r1.content)
-    modelPath = modelUrl[1]
+    modelPath = modelUrls[1]
  
 
     path_to_stl = "model1.stl"
